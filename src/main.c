@@ -1,32 +1,28 @@
 #include <stdio.h>
-#include <sys/sysinfo.h>
 #include <unistd.h>
 #include <sys/utsname.h>
-
-long get_cpu_count(void);
-void print_kernel_info(void);
+#include "procs.h"
 
 
-int main(void)
-{
-	printf("%ld\n", get_cpu_count());
-	print_kernel_info();
 
-	return 0;
+/*These two will be moved later on*/
+static long get_cpu_count(void) {
+    return sysconf(_SC_NPROCESSORS_ONLN);
+}
+static void print_kernel_info(void) {
+    struct utsname u;
+    if (uname(&u) == 0) {
+        printf("sk.Kernel: %s %s (%s)\n", u.sysname, u.release, u.machine);
+    }
 }
 
+int main(void) {
+    printf("CPUs online: %ld\n", get_cpu_count());
+    print_kernel_info();
 
-long get_cpu_count(void)
-{
-	return sysconf(_SC_NPROCESSORS_ONLN);
+    puts("\nProcesses (PID  NAME):");
+    print_processes(0); 
+
+    return 0;
 }
 
-
-void print_kernel_info(void)
-{
-	struct utsname u;
-  if (uname(&u) == 0)
-	{
-        printf("Kernel: %s %s (%s)\n", u.sysname, u.release, u.machine);
-	}
-}
